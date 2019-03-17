@@ -1,0 +1,40 @@
+{
+  "name": "case-converter",
+  "description": "Convert text layers, symbols or all instances of a symbol.",
+  "author": "Özgür Güneş",
+  "authorEmail": "o.gunes@gmail.com",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
+  "license": "MIT",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ozgurgunes/Sketch-Case-Converter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ozgurgunes/Sketch-Case-Converter/issues"
+  },
+  "engines": {
+    "sketch": ">=52"
+  },
+  "skpm": {
+    "name": "Case Converter",
+    "manifest": "src/manifest.json",
+    "main": "case-converter.sketchplugin",
+    "assets": [
+      "assets/**/*"
+    ]
+  },
+  "scripts": {
+    "build": "skpm-build",
+    "watch": "skpm-build --watch",
+    "start": "skpm-build --watch --run",
+    "postinstall": "npm run build && skpm-link"
+  },
+  "devDependencies": {
+    "@skpm/builder": "^0.5.11"
+  },
+  "dependencies": {
+    "langmap": "0.0.16",
+    "sketch-module-google-analytics": "^0.1.4"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "Case Converter",
+  "description": "Convert text layers, symbols or all instances of a symbol.",
+  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Case-Converter/master/.appcast.xml",
+  "identifier": "com.gunesozgur.sketch.case-converter",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
+  "author": "Özgür Güneş",
+  "authorEmail": "o.gunes@gmail.com",
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Convert to proper case",
+      "identifier": "case-converter.proper-case",
+      "script": "./command.js",
+      "handler": "properCase"
+    },
+    {
+      "name": "Convert To Title Case",
+      "identifier": "case-converter.title-case",
+      "script": "./command.js",
+      "handler": "titleCase"
+    },
+    {
+      "name": "CONVERT TO UPPER CASE",
+      "identifier": "case-converter.upper-case",
+      "script": "./command.js",
+      "handler": "upperCase"
+    },
+    {
+      "name": "convert to lower case",
+      "identifier": "case-converter.lower-case",
+      "script": "./command.js",
+      "handler": "lowerCase"
+    },
+    {
+      "name": "Settings",
+      "identifier": "case-converter.settings",
+      "script": "./command.js",
+      "handler": "pluginSettings"
+    }
+  ],
+  "menu": {
+    "title": "Case Converter",
+    "items": [
+      "case-converter.proper-case",
+      "case-converter.title-case",
+      "case-converter.upper-case",
+      "case-converter.lower-case",
+      "-",
+      "case-converter.settings"
+    ]
+  }
+}
