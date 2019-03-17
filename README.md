@@ -1,14 +1,15 @@
 <img src="https://github.com/ozgurgunes/Sketch-Case-Converter/blob/master/assets/icon.png?raw=true" alt="Sketch Case Converter" width="128" align="right" />
 
-# Sketch Case Converter &nbsp; [![Download Latest](https://img.shields.io/github/release/ozgurgunes/Sketch-Case-Converter.svg?label=Download)](https://github.com/ozgurgunes/Sketch-Case-Converter/releases/latest/download/case-converter.sketchplugin.zip)
+# Case Converter  [![Download Latest][image]][link]
 
-Case Converter plugin for Sketch, convert text layers, symbol overrides or even all overrides of all instances of a symbol to `Sentence case`, `Title Case`, `UPPER CASE` or `lover case`.
+[image]: https://img.shields.io/github/release/ozgurgunes/Sketch-Case-Converter.svg?label=Download
+[link]: https://github.com/ozgurgunes/Sketch-Case-Converter/releases/latest/download/case-converter.sketchplugin.zip
+
+Case Converter plugin for Sketch, converts text layers, symbol overrides or even all overrides of all instances of a symbol to `Sentence case`, `Title Case`, `UPPER CASE` or `lover case`.
 
 ## Installation
 
-[Download][] the latest release, unzip and double click on the .sketchplugin file.
-
-[Download]: https://github.com/ozgurgunes/Sketch-Case-Converter/releases/latest/download/case-converter.sketchplugin.zip
+[Download][link] the latest release, unzip and double click on the .sketchplugin file.
 
 #### Alternatively
 
