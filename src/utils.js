@@ -12,22 +12,30 @@ export const locale = getLocale()
 
 const getLanguages = () => {
   let languages = []
-  Object.keys(langmap).map(lang => {
-   languages.push({
-     code: lang,
-     name: langmap[lang]["nativeName"]
-   })
- })
- return languages.filter(lang => lang.code.length == 5).sort((a, b) => a.name > b.name)
+  for (let lang in langmap) {
+    if (lang.length == 5) {
+      languages.push({
+        code: lang,
+        name: langmap[lang]["nativeName"]
+      })
+    }
+  }
+ return languages.sort((a, b) => a.name > b.name)
 }
 
 export const languages = getLanguages()
 
-export const getLayers = selection => {
+export const getSelected = selection => {
+  let overrides = getSelectedOverrides()
   switch (true) {
-    case (!selection.layers[0]):
+    case (!selection.layers[0] && !overrides.length):
       analytics("No Selection")
       throw UI.message("Please select a symbol master, symbols or text layers.", "error")
+    case (overrides.length > 0):
+      return {
+        type: sketch.Types.Override,
+        layers: overrides
+      }
     case (isSymbolMaster(selection)):
       return {
         type: sketch.Types.SymbolMaster,
@@ -41,7 +49,7 @@ export const getLayers = selection => {
     case (!hasTextLayer(selection)):
       if (isAllSymbol(selection)) {
         analytics("Not Same Symbol")
-        throw UI.message("Symbols must be same.", "error")
+        throw UI.dialog("Selected symbols master must be same.")
       }
       analytics("No Text Layers")
       throw UI.message("Please select a symbol master, symbols or text layers.", "error")
@@ -51,6 +59,10 @@ export const getLayers = selection => {
         layers: selection.layers.filter(layer => layer.type == sketch.Types.Text)
       }
   }
+}
+
+const getSelectedOverrides = () => {
+  return context.document.documentData().selectedOverrides()
 }
 
 const hasTextLayer = selection => {

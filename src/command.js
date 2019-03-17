@@ -4,7 +4,7 @@ import * as UI from "./ui.js"
 import {
   locale,
   languages,
-  getLayers,
+  getSelected,
   getOptionList,
   analytics
 } from "./utils.js"
@@ -50,13 +50,11 @@ export const properCase = context => {
 
 export const pluginSettings = context => {
   try {
-    let
-      buttons = ['Save', 'Cancel'],
-      message = context.command.name(),
+    let buttons = ['Save', 'Cancel'],
       info = "Please select a symbol state.",
       accessory = UI.popUpButton(languages.map(lang => lang.name))
     accessory.selectItemAtIndex(languages.map(lang => lang.code).indexOf(locale))
-    let response = UI.dialog(message, info, accessory, buttons)
+    let response = UI.dialog(info, accessory, buttons)
     if (response === 1000) {
       let result = languages.map(lang => lang.code)[accessory.indexOfSelectedItem()]
       settings.setSettingForKey("locale", result)
@@ -70,13 +68,13 @@ export const pluginSettings = context => {
 }
 
 const convertCommand = commandFunction => {
-  let selected = getLayers(selection),
+  let selected = getSelected(selection),
     result
   switch (selected.type) {
     case sketch.Types.Text:
       result = convertLayers(selected.layers, commandFunction)
       analytics("Text Layer", result)
-      return UI.message(result + " layers converted.", "success")
+      return UI.message(result + " text layers converted.", "success")
     case sketch.Types.SymbolMaster:
       result = convertSymbols(selected.layers[0].getAllInstances(), commandFunction)
       analytics("Symbol Master", result)
@@ -86,7 +84,11 @@ const convertCommand = commandFunction => {
       result = convertSymbols(selected.layers, commandFunction)
       analytics("Symbol Instance", result)
       return UI.message(result + " overrides in " +
-        selected.length + " symbols converted.", "success")
+        selected.layers.length + " symbols converted.", "success")
+    case sketch.Types.Override:  
+      result = convertOverrides(selected.layers, commandFunction)
+      analytics("Symbol Override", result)
+      return UI.message(result + " overrides converted.", "success")
   }
 }
 
@@ -99,18 +101,17 @@ const convertLayers = (layers, caseFunction) => {
 
 const convertSymbols = (symbols, caseFunction) => {
   let buttons = ['Delete', 'Cancel', 'Convert All'],
-    message = context.command.name(),
     info = "Please select overrides to be converted.",
     overrides = symbols[0].overrides.filter(o => {
       return !o.isDefault && o.editable && o.property == "stringValue"
     })
-  console.log(locale)
-  if (overrides.length < 1) {
-    throw UI.dialog(message, "There are not any editable text overrides.")
+    if (overrides.length < 1) {
+    analytics("No Overrides")
+    throw UI.dialog("There are not any editable text overrides.")
   }
   let list = UI.optionList(getOptionList(symbols[0], overrides)),
     accessory = UI.scrollView(list.view),
-    response = UI.dialog(message, info, accessory, buttons)
+    response = UI.dialog(info, accessory, buttons)
 
   if (response === 1000 || response === 1002) {
     if (response === 1002) {
@@ -133,6 +134,24 @@ const convertSymbols = (symbols, caseFunction) => {
     })
     return c
   }
+}
+
+const convertOverrides = (overrides, caseFunction) => {
+  if (selection.layers.length > 1 || 
+    selection.layers[0].type != sketch.Types.SymbolInstance) {
+    analytics("Override Selection")
+    throw UI.dialog("Only one symbol could be selected to convert overrides.")
+  }
+  let symbol = selection.layers[0], c=0
+  for (let i = 0; i < overrides.length; i++) {
+    let override = symbol.overrides
+      .find(so => overrides[i].includes(so.id) && so.property == "stringValue")
+    if (override) {
+      symbol.setOverrideValue(override, caseFunction(override.value, locale))
+      c++
+    }
+  }
+  return c
 }
 
 const properCaseFunction = (text, locale) => {

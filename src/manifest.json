@@ -11,25 +11,25 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "Convert to proper case",
+      "name": "Convert to 'Proper case'",
       "identifier": "case-converter.proper-case",
       "script": "./command.js",
       "handler": "properCase"
     },
     {
-      "name": "Convert To Title Case",
+      "name": "Convert To 'Title Case'",
       "identifier": "case-converter.title-case",
       "script": "./command.js",
       "handler": "titleCase"
     },
     {
-      "name": "CONVERT TO UPPER CASE",
+      "name": "Convert To 'UPPER CASE'",
       "identifier": "case-converter.upper-case",
       "script": "./command.js",
       "handler": "upperCase"
     },
     {
-      "name": "convert to lower case",
+      "name": "Convert To 'lower case'",
       "identifier": "case-converter.lower-case",
       "script": "./command.js",
       "handler": "lowerCase"

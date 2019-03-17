@@ -11,11 +11,12 @@ export const message = (message, status) => {
     emoji = "✅   "
     break;
   }
-  UI.message(emoji + context.command.name() + ": " + message)
+  UI.message(emoji + context.command.name() + " : " + message)
 }
 
-export const dialog = (message, info, accessory, buttons) => {
+export const dialog = (info, accessory, buttons, message) => {
   var buttons = buttons || ['OK'],
+    message = message || context.command.name(),
     alert = NSAlert.alloc().init()
   alert.setMessageText(message)
   alert.setInformativeText(info)
