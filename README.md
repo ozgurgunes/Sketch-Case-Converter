@@ -21,15 +21,15 @@ All plugin commands have 4 scopes depend on your selection.
 
 ### Select Symbol Master
 
-If you select a symbol master; first you will be asked to choose text overrides which which will be converted, then all selected overrides of all instances will be converted.
+If you select a symbol master; first you will be asked to choose text overrides which which will be converted, then all chosen overrides of all instances of the symbol will be converted.
 
 ### Select Symbol Instances
 
-If you select instances of same symbol; like symbol master, first you will be asked to choose text overrides which which will be converted, then all selected overrides of selected symbols will be converted.
+If you select instances of same symbol; like symbol master, first you will be asked to choose text overrides which which will be converted, then all chosen overrides of selected symbols will be converted.
 
 ### Select Overrides
 
-If you select overrides of a symbol; all text overrides in your selection will be converted.
+If you select overrides directly; all text overrides in your selection will be converted.
 
 ### Select Text Layers
 

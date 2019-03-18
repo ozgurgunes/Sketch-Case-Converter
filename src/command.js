@@ -88,7 +88,8 @@ const convertCommand = commandFunction => {
     case sketch.Types.Override:  
       result = convertOverrides(selected.layers, commandFunction)
       analytics("Symbol Override", result)
-      return UI.message(result + " overrides converted.", "success")
+      return UI.message(result + " overrides in " +
+        selection.length + " symbols converted.", "success")
   }
 }
 
@@ -109,15 +110,15 @@ const convertSymbols = (symbols, caseFunction) => {
     analytics("No Overrides")
     throw UI.dialog("There are not any editable text overrides.")
   }
-  let list = UI.optionList(getOptionList(symbols[0], overrides)),
-    accessory = UI.scrollView(list.view),
+  let optionList = UI.optionList(getOptionList(symbols[0], overrides)),
+    accessory = UI.scrollView(optionList.view),
     response = UI.dialog(info, accessory, buttons)
 
   if (response === 1000 || response === 1002) {
     if (response === 1002) {
-      list.options.map(option => option.setState(true))
+      optionList.options.map(option => option.setState(true))
     }
-    if (list.selectedIndexes().length == 0) {
+    if (optionList.getSelection().length == 0) {
       analytics("Convert None")
       return UI.message("Nothing converted.")
     }
@@ -126,7 +127,7 @@ const convertSymbols = (symbols, caseFunction) => {
       let symbolOverrides = symbol.overrides.filter(o => {
         return !o.isDefault && o.editable && o.property == "stringValue"
       })
-      list.selectedIndexes().map(i => {
+      optionList.getSelection().map(i => {
         symbol.setOverrideValue(overrides[i],
           caseFunction(symbolOverrides[i].value, locale))
         c++
@@ -137,26 +138,23 @@ const convertSymbols = (symbols, caseFunction) => {
 }
 
 const convertOverrides = (overrides, caseFunction) => {
-  if (selection.layers.length > 1 || 
-    selection.layers[0].type != sketch.Types.SymbolInstance) {
-    analytics("Override Selection")
-    throw UI.dialog("Only one symbol could be selected to convert overrides.")
-  }
-  let symbol = selection.layers[0], c=0
-  for (let i = 0; i < overrides.length; i++) {
-    let override = symbol.overrides
-      .find(so => overrides[i].includes(so.id) && so.property == "stringValue")
-    if (override) {
-      symbol.setOverrideValue(override, caseFunction(override.value, locale))
-      c++
-    }
-  }
+  let c = 0
+  selection.layers.map(symbol => {
+    for (let i = 0; i < overrides.length; i++) {
+      let override = symbol.overrides
+        .find(o => overrides[i] == symbol.id + "#" + o.id && o.property == "stringValue")
+      if (override) {
+        symbol.setOverrideValue(override, caseFunction(override.value, locale))
+        c++
+      }
+    }    
+  })  
   return c
 }
 
 const properCaseFunction = (text, locale) => {
   return text.toLocaleLowerCase(locale)
-    .replace(/^\s*\w|[\.\?!…(...)]\s*\w/gu,
+    .replace(/^\s*\w|[\.\?!…(...)]\s*./gu,
       s => s.toLocaleUpperCase(locale))
 }
 

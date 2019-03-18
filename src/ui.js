@@ -11,7 +11,7 @@ export const message = (message, status) => {
     emoji = "✅   "
     break;
   }
-  UI.message(emoji + context.command.name() + " : " + message)
+  UI.message(emoji + context.command.name() + ": " + message)
 }
 
 export const dialog = (info, accessory, buttons, message) => {
@@ -76,7 +76,7 @@ export const optionList = items => {
   return {
     options: options,
     view: listView,
-    selectedIndexes: () => {
+    getSelection: () => {
       let selection = []
       options.map((option, i) => {
         if (option.state()) {
