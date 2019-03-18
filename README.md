@@ -17,7 +17,7 @@ Search for Symbol States in [Sketchrunner](http://sketchrunner.com/) or [Sketchp
 
 ## Usage
 
-All plugin commands have 3 scopes depend on your selection.
+All plugin commands have 4 scopes depend on your selection.
 
 ### Select Symbol Master
 
@@ -33,7 +33,7 @@ If you select overrides of a symbol; all text overrides in your selection will b
 
 ### Select Text Layers
 
-If your selection has any text layers; command will be appliad on all text layers in your selection.
+If your selection has any text layers; command will be applied on all text layers in your selection.
 
 ## Settings
 
