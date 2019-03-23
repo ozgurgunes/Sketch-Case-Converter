@@ -1,11 +1,11 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import send from 'sketch-module-google-analytics'
-import langmap from "langmap"
+import langmap from 'langmap'
 import * as UI from './ui.js'
 
 const getLocale = () => {
-  return settings.settingForKey("locale") || "en-US"
+  return settings.settingForKey('locale') || 'en-US'
 }
 
 export const locale = getLocale()
@@ -16,11 +16,11 @@ const getLanguages = () => {
     if (lang.length == 5) {
       languages.push({
         code: lang,
-        name: langmap[lang]["nativeName"]
+        name: langmap[lang]['nativeName']
       })
     }
   }
- return languages.sort((a, b) => a.name > b.name)
+  return languages.sort((a, b) => a.name > b.name)
 }
 
 export const languages = getLanguages()
@@ -29,8 +29,8 @@ export const getSelected = selection => {
   let overrides = getSelectedOverrides()
   switch (true) {
     case (!selection.layers[0] && !overrides.length):
-      analytics("No Selection")
-      throw UI.message("Please select a symbol master, symbols or text layers.", "error")
+      analytics('No Selection')
+      throw UI.message('Please select a symbol master, symbols or text layers.', 'error')
     case (overrides.length > 0):
       return {
         type: sketch.Types.Override,
@@ -48,11 +48,11 @@ export const getSelected = selection => {
       }
     case (!hasTextLayer(selection)):
       if (isAllSymbol(selection)) {
-        analytics("Not Same Symbol")
-        throw UI.dialog("Selected symbols master must be same.")
+        analytics('Not Same Symbol')
+        throw UI.dialog('Selected symbols master must be same.')
       }
-      analytics("No Text Layers")
-      throw UI.message("Please select a symbol master, symbols or text layers.", "error")
+      analytics('No Text Layers')
+      throw UI.message('Please select a symbol master, symbols or text layers.', 'error')
     default:
       return {
         type: sketch.Types.Text,
@@ -85,23 +85,23 @@ const isAllSameSymbol = selection => {
 
 export const getOptionList = (symbol, overrides) => {
   return overrides.map(override => {
-    let layers = override.path.split("/"),
-      list = []
+    let layers = override.path.split('/')
+    let list = []
     layers.map((layer, i) => {
       list.push(symbol.overrides.find(symbolOverride => {
-        return symbolOverride.path == layers.slice(0, i + 1).join("/")
+        return symbolOverride.path == layers.slice(0, i + 1).join('/')
       }).affectedLayer.name)
     })
-    let path = list.join(" > ")
+    let path = list.join(' > ')
     if (path.length > 40) {
-      path = path.slice(0,18) + " ... " + path.slice(-18)
+      path = path.slice(0, 18) + ' ... ' + path.slice(-18)
     }
     return path
   })
 }
 
 export const analytics = (label, value) => {
-  const ID = "UA-5738625-2"
+  const ID = 'UA-5738625-2'
   const payload = {}
   payload.ec = context.plugin.name()
   payload.ea = context.command.name()

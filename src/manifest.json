@@ -11,10 +11,10 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "Convert to 'Proper case'",
-      "identifier": "case-converter.proper-case",
+      "name": "Convert to 'Sentence case'",
+      "identifier": "case-converter.sentence-case",
       "script": "./command.js",
-      "handler": "properCase"
+      "handler": "sentenceCase"
     },
     {
       "name": "Convert To 'Title Case'",
@@ -44,7 +44,7 @@
   "menu": {
     "title": "Case Converter",
     "items": [
-      "case-converter.proper-case",
+      "case-converter.sentence-case",
       "case-converter.title-case",
       "case-converter.upper-case",
       "case-converter.lower-case",
