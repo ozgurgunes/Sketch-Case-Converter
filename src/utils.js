@@ -1,6 +1,5 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
-import send from 'sketch-module-google-analytics'
 import langmap from 'langmap'
 import * as UI from './ui.js'
 
@@ -98,18 +97,4 @@ export const getOptionList = (symbol, overrides) => {
     }
     return path
   })
-}
-
-export const analytics = (label, value) => {
-  const ID = 'UA-5738625-2'
-  const payload = {}
-  payload.ec = context.plugin.name()
-  payload.ea = context.command.name()
-  if (label) {
-    payload.el = label
-  }
-  if (value) {
-    payload.ev = value
-  }
-  return send(context, ID, 'event', payload)
 }
