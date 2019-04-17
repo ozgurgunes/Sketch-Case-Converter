@@ -101,7 +101,7 @@ const convertLayers = (layers, caseFunction) => {
 }
 
 const convertSymbols = (symbols, caseFunction) => {
-  let buttons = ['Delete', 'Cancel', 'Convert All']
+  let buttons = ['Convert', 'Cancel', 'Convert All']
   let info = 'Please select overrides to be converted.'
   let overrides = symbols[0].overrides.filter(o => {
     return !o.isDefault && o.editable && o.property == 'stringValue'
