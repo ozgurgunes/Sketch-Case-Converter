@@ -6,7 +6,7 @@
   "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
   "author": "Özgür Güneş",
   "authorEmail": "o.gunes@gmail.com",
-  "compatibleVersion": 3,
+  "compatibleVersion": 52,
   "bundleVersion": 1,
   "icon": "icon.png",
   "commands": [
