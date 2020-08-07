@@ -1,6 +1,7 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import langmap from 'langmap'
+import analytics from './analytics'
 import * as UI from './ui.js'
 
 const getLocale = () => {
