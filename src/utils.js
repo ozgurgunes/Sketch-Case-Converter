@@ -4,13 +4,13 @@ import langmap from 'langmap'
 import analytics from './analytics'
 import * as UI from './ui.js'
 
-const getLocale = () => {
+function getLocale() {
   return settings.settingForKey('locale') || 'en-US'
 }
 
 export const locale = getLocale()
 
-const getLanguages = () => {
+function getLanguages() {
   let languages = []
   for (let lang in langmap) {
     if (lang.length == 5) {
@@ -25,72 +25,90 @@ const getLanguages = () => {
 
 export const languages = getLanguages()
 
-export const getSelected = selection => {
+export function getSelection(selected) {
   let overrides = getSelectedOverrides()
   switch (true) {
-    case (!selection.layers[0] && !overrides.length):
+    case !selected.layers[0] && !overrides.length:
       analytics('No Selection')
-      throw UI.message('Please select a symbol master, symbols or text layers.', 'error')
-    case (overrides.length > 0):
+      throw UI.message(
+        'Please select a symbol master, symbols or text layers.',
+        'error'
+      )
+    case overrides.length > 0:
       return {
         type: sketch.Types.Override,
         layers: overrides
       }
-    case (isSymbolMaster(selection)):
+    case isSymbolMaster(selected):
       return {
         type: sketch.Types.SymbolMaster,
-        layers: selection.layers
+        layers: selected.layers
       }
-    case (isAllSameSymbol(selection)):
+    case isAllSameSymbol(selected):
       return {
         type: sketch.Types.SymbolInstance,
-        layers: selection.layers
+        layers: selected.layers
       }
-    case (!hasTextLayer(selection)):
-      if (isAllSymbol(selection)) {
+    case !hasTextLayer(selected):
+      if (isAllSymbol(selected)) {
         analytics('Not Same Symbol')
         throw UI.dialog('Selected symbols master must be same.')
       }
       analytics('No Text Layers')
-      throw UI.message('Please select a symbol master, symbols or text layers.', 'error')
+      throw UI.message(
+        'Please select a symbol master, symbols or text layers.',
+        'error'
+      )
     default:
       return {
         type: sketch.Types.Text,
-        layers: selection.layers.filter(layer => layer.type == sketch.Types.Text)
+        layers: selected.layers.filter(
+          layer => layer.type == sketch.Types.Text
+        )
       }
   }
 }
 
-const getSelectedOverrides = () => {
+function getSelectedOverrides() {
   return context.document.documentData().selectedOverrides()
 }
 
-const hasTextLayer = selection => {
-  return selection.layers.some(layer => layer.type == sketch.Types.Text)
+function hasTextLayer(selected) {
+  return selected.layers.some(layer => layer.type == sketch.Types.Text)
 }
 
-const isSymbolMaster = selection => {
-  return selection.length == 1 &&
-    selection.layers[0].type == sketch.Types.SymbolMaster
+function isSymbolMaster(selected) {
+  return (
+    selected.length == 1 &&
+    selected.layers[0].type == sketch.Types.SymbolMaster
+  )
 }
 
-const isAllSymbol = selection => {
-  return selection.layers.every(item => item.type == sketch.Types.SymbolInstance)
+function isAllSymbol(selected) {
+  return selected.layers.every(
+    item => item.type == sketch.Types.SymbolInstance
+  )
 }
 
-const isAllSameSymbol = selection => {
-  return selection.layers[0].type == sketch.Types.SymbolInstance &&
-    selection.layers.every(item => item.master.id == selection.layers[0].master.id)
+function isAllSameSymbol(selected) {
+  return (
+    selected.layers[0].type == sketch.Types.SymbolInstance &&
+    selected.layers.every(
+      item => item.master.id == selected.layers[0].master.id
+    )
+  )
 }
 
-export const getOptionList = (symbol, overrides) => {
+export function getOptionList(symbol, overrides) {
   return overrides.map(override => {
     let layers = override.path.split('/')
     let list = []
     layers.map((layer, i) => {
-      list.push(symbol.overrides.find(symbolOverride => {
-        return symbolOverride.path == layers.slice(0, i + 1).join('/')
-      }).affectedLayer.name)
+      list.push(
+        symbol.overrides.find(symbolOverride => {
+          return symbolOverride.path == layers.slice(0, i + 1).join('/')
+        }).affectedLayer.name
+      )
     })
     let path = list.join(' > ')
     if (path.length > 40) {

@@ -1,7 +1,7 @@
 {
   "name": "case-converter",
-  "description": "Convert text layers, symbols or all instances of a symbol.",
-  "author": "Özgür Güneş",
+  "description": "Converts case of text in selected layers, symbol overrides or even all overrides of all instances of a symbol to 'Sentence case', 'Title Case', 'UPPER CASE' or 'lower case'.",
+  "author": "Ozgur Gunes",
   "authorEmail": "o.gunes@gmail.com",
   "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
   "license": "MIT",
@@ -42,15 +42,9 @@
     "eslint-config-prettier": "^4.3.0",
     "eslint-config-sketch": "^0.2.4",
     "eslint-plugin-prettier": "^3.1.0",
-    "prettier": "^1.18.2",
-    "standard": "^12.0.1"
+    "prettier": "^1.18.2"
   },
   "dependencies": {
     "langmap": "0.0.16"
-  },
-  "babel": {
-    "presets": [
-      "@skpm/babel-preset"
-    ]
   }
 }

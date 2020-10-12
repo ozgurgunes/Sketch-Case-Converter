@@ -1,13 +1,12 @@
 {
   "name": "Case Converter",
-  "description": "Convert text layers, symbols or all instances of a symbol.",
-  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Case-Converter/master/.appcast.xml",
+  "description": "Converts case of text in selected layers, symbol overrides or even all overrides of all instances of a symbol to 'Sentence case', 'Title Case', 'UPPER CASE' or 'lower case'.",
   "identifier": "com.gunesozgur.sketch.case-converter",
-  "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
-  "author": "Özgür Güneş",
+  "author": "Ozgur Gunes",
   "authorEmail": "o.gunes@gmail.com",
-  "compatibleVersion": 52,
-  "bundleVersion": 1,
+  "$schema": "https://raw.githubusercontent.com/sketch-hq/SketchAPI/develop/docs/sketch-plugin-manifest-schema.json",
+  "appcast": "https://raw.githubusercontent.com/ozgurgunes/Sketch-Case-Converter/master/.appcast.xml",
+  "homepage": "https://github.com/ozgurgunes/Sketch-Case-Converter",
   "icon": "icon.png",
   "commands": [
     {

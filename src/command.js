@@ -2,17 +2,12 @@ import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
 import * as UI from './ui.js'
 import analytics from './analytics'
-import {
-  locale,
-  languages,
-  getSelected,
-  getOptionList,
-} from './utils'
+import { locale, languages, getSelection, getOptionList } from './utils'
 
 var doc = sketch.getSelectedDocument()
-var selection = doc.selectedLayers
+var selected = doc.selectedLayers
 
-export const upperCase = context => {
+export function upperCase() {
   try {
     convertCommand(upperCaseFunction)
   } catch (e) {
@@ -21,7 +16,7 @@ export const upperCase = context => {
   }
 }
 
-export const lowerCase = context => {
+export function lowerCase() {
   try {
     convertCommand(lowerCaseFunction)
   } catch (e) {
@@ -30,7 +25,7 @@ export const lowerCase = context => {
   }
 }
 
-export const titleCase = context => {
+export function titleCase() {
   try {
     convertCommand(titleCaseFunction)
   } catch (e) {
@@ -39,7 +34,7 @@ export const titleCase = context => {
   }
 }
 
-export const sentenceCase = context => {
+export function sentenceCase() {
   try {
     convertCommand(sentenceCaseFunction)
   } catch (e) {
@@ -48,15 +43,19 @@ export const sentenceCase = context => {
   }
 }
 
-export const pluginSettings = context => {
+export function pluginSettings() {
   try {
     let buttons = ['Save', 'Cancel']
-    let info = 'Please select a symbol state.'
+    let info = 'Please select the language.'
     let accessory = UI.popUpButton(languages.map(lang => lang.name))
-    accessory.selectItemAtIndex(languages.map(lang => lang.code).indexOf(locale))
+    accessory.selectItemAtIndex(
+      languages.map(lang => lang.code).indexOf(locale)
+    )
     let response = UI.dialog(info, accessory, buttons)
     if (response === 1000) {
-      let result = languages.map(lang => lang.code)[accessory.indexOfSelectedItem()]
+      let result = languages.map(lang => lang.code)[
+        accessory.indexOfSelectedItem()
+      ]
       settings.setSettingForKey('locale', result)
       analytics(result, 1)
       return UI.message('Settings saved.', 'success')
@@ -67,40 +66,52 @@ export const pluginSettings = context => {
   }
 }
 
-const convertCommand = commandFunction => {
-  let selected = getSelected(selection)
+function convertCommand(commandFunction) {
+  let selection = getSelection(selected)
   let result
-  switch (selected.type) {
+  switch (selection.type) {
     case sketch.Types.Text:
-      result = convertLayers(selected.layers, commandFunction)
+      result = convertLayers(selection.layers, commandFunction)
       analytics('Text Layer', result)
       return UI.message(result + ' text layers converted.', 'success')
     case sketch.Types.SymbolMaster:
-      result = convertSymbols(selected.layers[0].getAllInstances(), commandFunction)
+      result = convertSymbols(
+        selection.layers[0].getAllInstances(),
+        commandFunction
+      )
       analytics('Symbol Master', result)
-      return UI.message(result + ' overrides in ' +
-        selected.length + ' symbols converted.', 'success')
+      return UI.message(
+        result + ' overrides in ' + selection.length + ' symbols converted.',
+        'success'
+      )
     case sketch.Types.SymbolInstance:
-      result = convertSymbols(selected.layers, commandFunction)
+      result = convertSymbols(selection.layers, commandFunction)
       analytics('Symbol Instance', result)
-      return UI.message(result + ' overrides in ' +
-        selected.layers.length + ' symbols converted.', 'success')
+      return UI.message(
+        result +
+          ' overrides in ' +
+          selection.layers.length +
+          ' symbols converted.',
+        'success'
+      )
     case sketch.Types.Override:
-      result = convertOverrides(selected.layers, commandFunction)
+      result = convertOverrides(selection.layers, commandFunction)
       analytics('Symbol Override', result)
-      return UI.message(result + ' overrides in ' +
-        selection.length + ' symbols converted.', 'success')
+      return UI.message(
+        result + ' overrides in ' + selected.length + ' symbols converted.',
+        'success'
+      )
   }
 }
 
-const convertLayers = (layers, caseFunction) => {
+function convertLayers(layers, caseFunction) {
   layers.map(layer => {
     layer.text = caseFunction(layer.text, locale)
   })
   return layers.length
 }
 
-const convertSymbols = (symbols, caseFunction) => {
+function convertSymbols(symbols, caseFunction) {
   let buttons = ['Convert', 'Cancel', 'Convert All']
   let info = 'Please select overrides to be converted.'
   let overrides = symbols[0].overrides.filter(o => {
@@ -128,8 +139,10 @@ const convertSymbols = (symbols, caseFunction) => {
         return !o.isDefault && o.editable && o.property == 'stringValue'
       })
       optionList.getSelection().map(i => {
-        symbol.setOverrideValue(overrides[i],
-          caseFunction(symbolOverrides[i].value, locale))
+        symbol.setOverrideValue(
+          overrides[i],
+          caseFunction(symbolOverrides[i].value, locale)
+        )
         c++
       })
     })
@@ -137,12 +150,14 @@ const convertSymbols = (symbols, caseFunction) => {
   }
 }
 
-const convertOverrides = (overrides, caseFunction) => {
+function convertOverrides(overrides, caseFunction) {
   let c = 0
-  selection.layers.map(symbol => {
+  selected.layers.map(symbol => {
     for (let i = 0; i < overrides.length; i++) {
-      let override = symbol.overrides
-        .find(o => overrides[i] == symbol.id + '#' + o.id && o.property == 'stringValue')
+      let override = symbol.overrides.find(
+        o =>
+          overrides[i] == symbol.id + '#' + o.id && o.property == 'stringValue'
+      )
       if (override) {
         symbol.setOverrideValue(override, caseFunction(override.value, locale))
         c++
@@ -152,22 +167,22 @@ const convertOverrides = (overrides, caseFunction) => {
   return c
 }
 
-const sentenceCaseFunction = (text, locale) => {
-  return text.toLocaleLowerCase(locale)
-    .replace(/^\s*\w|[.?!…(...)]\s*./gu,
-      s => s.toLocaleUpperCase(locale))
+function sentenceCaseFunction(text, locale) {
+  return text
+    .toLocaleLowerCase(locale)
+    .replace(/^\s*\w|[.?!…(...)]\s*./gu, s => s.toLocaleUpperCase(locale))
 }
 
-const titleCaseFunction = (text, locale) => {
+function titleCaseFunction(text, locale) {
   return text.replace(/([^\s:-])([^\s:-]*)/gu, ($0, $1, $2) => {
     return $1.toLocaleUpperCase(locale) + $2.toLocaleLowerCase(locale)
   })
 }
 
-const upperCaseFunction = (text, locale) => {
+function upperCaseFunction(text, locale) {
   return text.toLocaleUpperCase(locale)
 }
 
-const lowerCaseFunction = (text, locale) => {
+function lowerCaseFunction(text, locale) {
   return text.toLocaleLowerCase(locale)
 }
