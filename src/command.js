@@ -1,105 +1,69 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
-import * as UI from './ui.js'
-import analytics from './analytics'
-import { locale, languages, getSelection, getOptionList } from './utils'
+import {
+  showMessage,
+  successMessage,
+  alert,
+  popUpButton,
+  scrollView,
+  optionList,
+} from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
+import { languages, getSelection, getOptionList } from './utils'
 
-var doc = sketch.getSelectedDocument()
-var selected = doc.selectedLayers
+const locale = settings.settingForKey('locale') || 'en-US'
 
 export function upperCase() {
-  try {
-    convertCommand(upperCaseFunction)
-  } catch (e) {
-    console.log(e)
-    return e
-  }
+  convertCommand(upperCaseFunction)
 }
 
 export function lowerCase() {
-  try {
-    convertCommand(lowerCaseFunction)
-  } catch (e) {
-    console.log(e)
-    return e
-  }
+  convertCommand(lowerCaseFunction)
 }
 
 export function titleCase() {
-  try {
-    convertCommand(titleCaseFunction)
-  } catch (e) {
-    console.log(e)
-    return e
-  }
+  convertCommand(titleCaseFunction)
 }
 
 export function sentenceCase() {
-  try {
-    convertCommand(sentenceCaseFunction)
-  } catch (e) {
-    console.log(e)
-    return e
-  }
+  convertCommand(sentenceCaseFunction)
 }
 
 export function pluginSettings() {
-  try {
-    let buttons = ['Save', 'Cancel']
-    let info = 'Please select the language.'
-    let accessory = UI.popUpButton(languages.map(lang => lang.name))
-    accessory.selectItemAtIndex(
-      languages.map(lang => lang.code).indexOf(locale)
-    )
-    let response = UI.dialog(info, accessory, buttons)
-    if (response === 1000) {
-      let result = languages.map(lang => lang.code)[
-        accessory.indexOfSelectedItem()
-      ]
-      settings.setSettingForKey('locale', result)
-      analytics(result, 1)
-      return UI.message('Settings saved.', 'success')
-    }
-  } catch (e) {
-    console.log(e)
-    return e
+  let buttons = ['Save', 'Cancel']
+  let info = 'Please select the language.'
+  let accessory = popUpButton(languages.map(lang => lang.name))
+  accessory.selectItemAtIndex(languages.map(lang => lang.code).indexOf(locale))
+  let response = alert(info, buttons, accessory).runModal()
+  if (response === 1000) {
+    let result = languages.map(lang => lang.code)[
+      accessory.indexOfSelectedItem()
+    ]
+    settings.setSettingForKey('locale', result)
+    analytics(result, 1)
+    return successMessage('Settings saved.')
   }
 }
 
 function convertCommand(commandFunction) {
-  let selection = getSelection(selected)
-  let result
+  let selection = getSelection()
+  if (!selection) return
   switch (selection.type) {
     case sketch.Types.Text:
-      result = convertLayers(selection.layers, commandFunction)
-      analytics('Text Layer', result)
-      return UI.message(result + ' text layers converted.', 'success')
+      return convertLayers(selection.layers, commandFunction)
     case sketch.Types.SymbolMaster:
-      result = convertSymbols(
+      return convertSymbols(
         selection.layers[0].getAllInstances(),
-        commandFunction
-      )
-      analytics('Symbol Master', result)
-      return UI.message(
-        result + ' overrides in ' + selection.length + ' symbols converted.',
-        'success'
+        commandFunction,
+        true
       )
     case sketch.Types.SymbolInstance:
-      result = convertSymbols(selection.layers, commandFunction)
-      analytics('Symbol Instance', result)
-      return UI.message(
-        result +
-          ' overrides in ' +
-          selection.layers.length +
-          ' symbols converted.',
-        'success'
-      )
+      return convertSymbols(selection.layers, commandFunction)
     case sketch.Types.Override:
-      result = convertOverrides(selection.layers, commandFunction)
-      analytics('Symbol Override', result)
-      return UI.message(
-        result + ' overrides in ' + selected.length + ' symbols converted.',
-        'success'
+      return convertOverrides(
+        selection.layers,
+        selection.overrides,
+        commandFunction
       )
   }
 }
@@ -108,10 +72,11 @@ function convertLayers(layers, caseFunction) {
   layers.map(layer => {
     layer.text = caseFunction(layer.text, locale)
   })
-  return layers.length
+  analytics('Text Layer', layers.length)
+  return successMessage(layers.length + ' text layers converted.')
 }
 
-function convertSymbols(symbols, caseFunction) {
+function convertSymbols(symbols, caseFunction, masterSelected) {
   let buttons = ['Convert', 'Cancel', 'Convert All']
   let info = 'Please select overrides to be converted.'
   let overrides = symbols[0].overrides.filter(o => {
@@ -119,40 +84,48 @@ function convertSymbols(symbols, caseFunction) {
   })
   if (overrides.length < 1) {
     analytics('No Overrides')
-    throw UI.dialog('There are not any editable text overrides.')
+    return alert('There are not any editable text overrides.').runModal()
   }
-  let optionList = UI.optionList(getOptionList(symbols[0], overrides))
-  let accessory = UI.scrollView(optionList.view)
-  let response = UI.dialog(info, accessory, buttons)
-
-  if (response === 1000 || response === 1002) {
-    if (response === 1002) {
-      optionList.options.map(option => option.setState(true))
-    }
-    if (optionList.getSelection().length == 0) {
-      analytics('Convert None')
-      return UI.message('Nothing converted.')
-    }
-    let c = 0
-    symbols.map(symbol => {
-      let symbolOverrides = symbol.overrides.filter(o => {
-        return !o.isDefault && o.editable && o.property == 'stringValue'
-      })
-      optionList.getSelection().map(i => {
-        symbol.setOverrideValue(
-          overrides[i],
-          caseFunction(symbolOverrides[i].value, locale)
-        )
-        c++
-      })
+  let overrideOptions = optionList(getOptionList(symbols[0], overrides))
+  let accessory = scrollView(overrideOptions.view)
+  let response = alert(info, buttons, accessory).runModal()
+  if (!response || response === 1001) return
+  if (response === 1002) {
+    overrideOptions.options.map(option => option.setState(true))
+  }
+  if (overrideOptions.getSelection().length == 0) {
+    analytics('Convert None')
+    return showMessage('Nothing converted.')
+  }
+  let c = 0
+  symbols.map(symbol => {
+    let symbolOverrides = symbol.overrides.filter(o => {
+      return !o.isDefault && o.editable && o.property == 'stringValue'
     })
-    return c
+    overrideOptions.getSelection().map(i => {
+      symbol.setOverrideValue(
+        overrides[i],
+        caseFunction(symbolOverrides[i].value, locale)
+      )
+      c++
+    })
+  })
+  if (masterSelected) {
+    analytics('Symbol Master', c)
+    return successMessage(
+      c + ' overrides in ' + symbols.length + ' symbols converted.'
+    )
+  } else {
+    analytics('Symbol Instance', c)
+    return successMessage(
+      c + ' overrides in ' + symbols.length + ' symbols converted.'
+    )
   }
 }
 
-function convertOverrides(overrides, caseFunction) {
+function convertOverrides(layers, overrides, caseFunction) {
   let c = 0
-  selected.layers.map(symbol => {
+  layers.map(symbol => {
     for (let i = 0; i < overrides.length; i++) {
       let override = symbol.overrides.find(
         o =>
@@ -164,7 +137,10 @@ function convertOverrides(overrides, caseFunction) {
       }
     }
   })
-  return c
+  analytics('Symbol Override', c)
+  return successMessage(
+    c + ' overrides in ' + layers.length + ' symbols converted.'
+  )
 }
 
 function sentenceCaseFunction(text, locale) {

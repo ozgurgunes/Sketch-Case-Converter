@@ -17,7 +17,7 @@ Search for Case Converter in [Sketchrunner](http://sketchrunner.com/) or [Sketch
 
 ## Usage
 
-All plugin commands have 4 scopes depend on your selection.
+All plugin commands have 4 scopes depending on your selection.
 
 ### Select Symbol Master
 

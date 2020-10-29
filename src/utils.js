@@ -1,14 +1,7 @@
 import sketch from 'sketch/dom'
-import settings from 'sketch/settings'
 import langmap from 'langmap'
-import analytics from './analytics'
-import * as UI from './ui.js'
-
-function getLocale() {
-  return settings.settingForKey('locale') || 'en-US'
-}
-
-export const locale = getLocale()
+import { errorMessage, alert } from '@ozgurgunes/sketch-plugin-ui'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
 
 function getLanguages() {
   let languages = []
@@ -16,7 +9,7 @@ function getLanguages() {
     if (lang.length == 5) {
       languages.push({
         code: lang,
-        name: langmap[lang]['nativeName']
+        name: langmap[lang]['nativeName'],
       })
     }
   }
@@ -25,52 +18,55 @@ function getLanguages() {
 
 export const languages = getLanguages()
 
-export function getSelection(selected) {
+export function getSelection() {
+  let selected = sketch.getSelectedDocument().selectedLayers
   let overrides = getSelectedOverrides()
   switch (true) {
     case !selected.layers[0] && !overrides.length:
       analytics('No Selection')
-      throw UI.message(
-        'Please select a symbol master, symbols or text layers.',
-        'error'
+      return errorMessage(
+        'Please select a symbol master, symbols or text layers.'
       )
     case overrides.length > 0:
       return {
         type: sketch.Types.Override,
-        layers: overrides
+        layers: selected.layers,
+        overrides: overrides,
       }
     case isSymbolMaster(selected):
       return {
         type: sketch.Types.SymbolMaster,
-        layers: selected.layers
+        layers: selected.layers,
       }
     case isAllSameSymbol(selected):
       return {
         type: sketch.Types.SymbolInstance,
-        layers: selected.layers
+        layers: selected.layers,
       }
     case !hasTextLayer(selected):
       if (isAllSymbol(selected)) {
         analytics('Not Same Symbol')
-        throw UI.dialog('Selected symbols master must be same.')
+        return alert('Selected symbols master must be same.').runModal()
       }
       analytics('No Text Layers')
-      throw UI.message(
-        'Please select a symbol master, symbols or text layers.',
-        'error'
+      return errorMessage(
+        'Please select a symbol master, symbols or text layers.'
       )
     default:
       return {
         type: sketch.Types.Text,
         layers: selected.layers.filter(
           layer => layer.type == sketch.Types.Text
-        )
+        ),
       }
   }
 }
 
 function getSelectedOverrides() {
-  return context.document.documentData().selectedOverrides()
+  return sketch
+    .getSelectedDocument()
+    .sketchObject.documentData()
+    .selectedOverrides()
 }
 
 function hasTextLayer(selected) {
@@ -79,23 +75,19 @@ function hasTextLayer(selected) {
 
 function isSymbolMaster(selected) {
   return (
-    selected.length == 1 &&
-    selected.layers[0].type == sketch.Types.SymbolMaster
+    selected.length == 1 && selected.layers[0].type == sketch.Types.SymbolMaster
   )
 }
 
 function isAllSymbol(selected) {
-  return selected.layers.every(
-    item => item.type == sketch.Types.SymbolInstance
-  )
+  return selected.layers.every(item => item.type == sketch.Types.SymbolInstance)
 }
 
 function isAllSameSymbol(selected) {
-  return (
-    selected.layers[0].type == sketch.Types.SymbolInstance &&
-    selected.layers.every(
-      item => item.master.id == selected.layers[0].master.id
-    )
+  return selected.layers.every(
+    item =>
+      item.type == sketch.Types.SymbolInstance &&
+      item.master.id == selected.layers[0].master.id
   )
 }
 
@@ -112,7 +104,7 @@ export function getOptionList(symbol, overrides) {
     })
     let path = list.join(' > ')
     if (path.length > 40) {
-      path = path.slice(0, 18) + ' ... ' + path.slice(-18)
+      path = path.slice(0, 18) + ' … ' + path.slice(-18)
     }
     return path
   })
