@@ -1,5 +1,6 @@
 import sketch from 'sketch/dom'
 import settings from 'sketch/settings'
+import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import {
   showMessage,
   successMessage,
@@ -8,7 +9,6 @@ import {
   scrollView,
   optionList,
 } from '@ozgurgunes/sketch-plugin-ui'
-import analytics from '@ozgurgunes/sketch-plugin-analytics'
 import { languages, getSelection, getOptionList } from './utils'
 
 const locale = settings.settingForKey('locale') || 'en-US'

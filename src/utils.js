@@ -1,7 +1,7 @@
 import sketch from 'sketch/dom'
 import langmap from 'langmap'
-import { errorMessage, alert } from '@ozgurgunes/sketch-plugin-ui'
 import analytics from '@ozgurgunes/sketch-plugin-analytics'
+import { errorMessage, alert } from '@ozgurgunes/sketch-plugin-ui'
 
 function getLanguages() {
   let languages = []
